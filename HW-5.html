@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>123</title>
+	<style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+	</style>
+
+</head>
+<body>
+	<div id="map"></div>
+	
+	<script>
+		var map;
+		var service;
+		var infowindow;
+
+		function initMap() {
+            var pyrmont = new google.maps.LatLng(24.1844378, 120.6085628);
+
+		  map = new google.maps.Map(document.getElementById('map'), {
+			  center: pyrmont,
+			  zoom: 14
+			});
+
+		  var request = {
+			 location: pyrmont,
+             radius: '10000000',
+             query: '西屯區郵局'
+          };
+          var request2 = {
+              location: pyrmont,
+              radius: '10000000',
+              query: '西屯區加油站'
+          };
+
+		  service = new google.maps.places.PlacesService(map);
+          service.textSearch(request, callback);
+          service.textSearch(request2, callback);
+		 
+		}
+
+		function callback(results, status) {
+		  if (status == google.maps.places.PlacesServiceStatus.OK) {
+			for (var i = 0; i < results.length; i++) {
+                var place = results[i];
+			  createMarker(results[i]);
+			}
+		  }
+		}
+
+        function createMarker(place) {
+           
+            var infoWindow = new google.maps.InfoWindow();
+            if (place.name.includes('郵')) {
+
+           
+			    var marker = new google.maps.Marker({
+				    map: map,
+				    position: place.geometry.location,
+                    icon: {
+                        url: './郵局.png',
+                    }
+                });
+                google.maps.event.addListener(marker, 'click', function () {
+                    service.getDetails(place, function (result, status) {
+                        if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                            console.error(status);
+                            return;
+                        }
+                        infoWindow.setContent(result.formatted_address);
+                        infoWindow.open(map, marker);
+                    });
+                });
+            }
+            else if (place.name.includes('油')) {
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location,
+                    icon: {
+                        url: './加油站.gif',
+                    }
+                });
+                google.maps.event.addListener(marker, 'click', function () {
+                    service.getDetails(place, function (result, status) {
+                        if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                            console.error(status);
+                            return;
+                        }
+                        infoWindow.setContent(result.formatted_address);
+                        infoWindow.open(map, marker);
+                    });
+                });
+            }
+            
+		}
+		</script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBoVKq743bBHYExQ_6QDj1WWPSNgnwCd_s&callback=initMap&libraries=places"></script>
+</body>
+</html>
